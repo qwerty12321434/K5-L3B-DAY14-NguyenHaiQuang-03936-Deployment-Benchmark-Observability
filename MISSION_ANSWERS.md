@@ -125,6 +125,26 @@ Server: nginx
 {"answer":"Agent đang hoạt động tốt! (mock response) Hỏi thêm câu hỏi đi nhé."}
 ```
 
+## Part 3 — Cloud Deployment (CP6)
+
+### Exercise 3.2 — Deploy lên Render
+
+Tôi deploy agent trong `06-lab-complete/` từ nhánh `main` bằng Blueprint. Commit `6b92e40` hiển thị **Live** trên Render. Dịch vụ dùng Render Key Value làm Redis.
+
+URL public · [day14-agent-hi1s.onrender.com](https://day14-agent-hi1s.onrender.com)
+
+Kết quả lần lượt là `200` cho `/health`, `200` cho `/ready`, `401` khi gọi `/ask` thiếu key và `200` khi có key hợp lệ. Xem lệnh và ảnh trong [DEPLOYMENT.md](DEPLOYMENT.md).
+
+### So sánh cấu hình Railway và Render
+
+`railway.toml` mẫu tách cấu hình thành `[build]` và `[deploy]`, chỉ định builder, lệnh chạy và `healthcheckPath`. `render.yaml` khai báo dịch vụ trong `services`, dùng Dockerfile trong `rootDir`, chỉ định `healthCheckPath` và cách cấp biến môi trường. Cả hai đều cấu hình health check ở `/health`.
+
+### Exercise 3.3 — Pipeline Cloud Run
+
+1. Cloud Build chạy test bằng `pytest`.
+2. Sau bước test, Cloud Build build image Docker, gắn tag theo commit và đẩy lên registry.
+3. Bước deploy dùng image theo commit để tạo phiên bản mới trên Cloud Run. File `service.yaml` mẫu mô tả cấu hình runtime như cổng, tài nguyên, health probe và giới hạn scale.
+
 ## Part 4 — API Security
 
 ### Exercise 4.1 — Xác thực bằng API key
@@ -290,3 +310,7 @@ Codex chạy `python check_production_ready.py` trong Ubuntu từ `06-lab-comple
 - Tôi tự chạy các lệnh thử API key, lấy JWT và gọi `/ask` liên tiếp 20 lần trong Ubuntu. Tôi gửi log cho Codex để kiểm tra và ghi các mã HTTP vào Part 4. Codex đối chiếu code mẫu để giải thích cửa sổ trượt, cost guard và trường chi phí trong response.
 - Tôi chạy bản develop, thử `/health` và `/ready`, gửi `SIGTERM`, rồi gửi output terminal cho Codex để ghi vào mục 5.1 và 5.2. Tôi chạy stack CP4 và kiểm tra lịch sử chat. Codex đọc trạng thái Compose và log các container, rồi gọi lại endpoint lịch sử của session trong log để xác nhận số tin nhắn trước khi tổng hợp Part 5.
 - Tôi nhờ Codex triển khai các TODO của CP5 và hướng dẫn build Docker. Codex viết phần cấu hình, xác thực, health/readiness, giới hạn tần suất và chi phí qua Redis, logging và shutdown. Codex cập nhật Dockerfile, Compose và cấu hình Render, sau đó build image và chạy script chấm đầy đủ trong Ubuntu. Kết quả ở Part 6 là từ lần chạy kiểm tra của Codex.
+- Tôi deploy trên Render, tự chạy bốn lệnh curl và gửi ảnh minh chứng. Codex tổng hợp kết quả vào `DEPLOYMENT.md` và đối chiếu các file cấu hình mẫu để viết Part 3.
+- Tôi tự chạy bảy lượt load test của CP7. Codex đọc các JSON đã lưu, điền bảng hiệu năng và tóm tắt kết quả concurrency và tail latency trong `BENCHMARK_REPORT.md`.
+- Tôi chạy eval v1 và v2. Codex đối chiếu hai câu v2 còn sai và gợi ý hai mục knowledge base. Tôi cập nhật code, khởi động lại v2 và chạy lần eval cuối, đạt 23/23 với 0 regression. Codex dùng ba file JSON để điền bảng chất lượng và giải thích quality gate trong báo cáo.
+- Tôi chạy hai lượt Locust, bật lỗi và độ trễ mô phỏng, rồi chụp Grafana, Prometheus và hai trace Jaeger. Codex sửa đường dẫn thư viện trong Dockerfile CP8, kiểm tra stack khởi động lại và đối chiếu ảnh, CSV, dữ liệu Prometheus và log cùng trace ID để hoàn thiện báo cáo.
